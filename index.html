@@ -957,26 +957,15 @@ async function startImageUpload() {
 }
 
 async function uploadImageToSupabase(srcUrl) {
-  var proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(srcUrl);
-  var resp = await fetch(proxyUrl);
-  if (!resp.ok) throw new Error('fetch failed: ' + resp.status);
-  var blob = await resp.blob();
-  var ext = blob.type.includes('png') ? 'png' : blob.type.includes('webp') ? 'webp' : 'jpg';
-  var filename = 'sortly/' + Date.now() + '-' + Math.random().toString(36).substr(2, 8) + '.' + ext;
-  var uploadResp = await fetch(SUPA_URL + '/storage/v1/object/assets/' + filename, {
+  var resp = await fetch('https://xnwsjvqofruvihyobpcw.supabase.co/functions/v1/smart-action', {
     method: 'POST',
-    headers: {
-      'Authorization': 'Bearer ' + SUPA_KEY,
-      'Content-Type': blob.type,
-      'x-upsert': 'true'
-    },
-    body: blob
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url: srcUrl })
   });
-  if (!uploadResp.ok) {
-    var err = await uploadResp.text();
-    throw new Error('upload failed: ' + err);
-  }
-  return SUPA_URL + '/storage/v1/object/public/assets/' + filename;
+  if (!resp.ok) throw new Error('function failed: ' + resp.status);
+  var data = await resp.json();
+  if (data.error) throw new Error(data.error);
+  return data.url;
 }
 
 function buildImgCsv(total, success, failed) {
