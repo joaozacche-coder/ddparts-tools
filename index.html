@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DD Parts — Shopify Tools</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+:root{--bg:#0f0f0f;--bg2:#161616;--bg3:#1e1e1e;--border:#2e2e2e;--border2:#3d3d3d;--text:#e8e8e8;--text2:#999;--text3:#555;--accent:#e8ff47;--accent2:#c8e020;--red:#ff5757;--blue:#57a9ff;--green:#57e89a;--orange:#ffaa57;--radius:8px;--font:'IBM Plex Sans',sans-serif;--mono:'IBM Plex Mono',monospace}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6}
+.shell{display:flex;min-height:100vh}
+.sidebar{width:220px;min-width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:1.5rem 0;position:sticky;top:0;height:100vh}
+.logo{padding:0 1.25rem 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1rem}
+.logo-mark{font-family:var(--mono);font-size:20px;font-weight:500;color:var(--accent);letter-spacing:-0.5px}
+.logo-sub{font-size:11px;color:var(--text3);margin-top:2px;letter-spacing:.5px;text-transform:uppercase}
+.nav-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);padding:0 1.25rem;margin-bottom:6px;margin-top:8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 1.25rem;cursor:pointer;color:var(--text2);font-size:13px;transition:all .12s;border-left:2px solid transparent}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{color:var(--accent);background:rgba(232,255,71,.05);border-left-color:var(--accent)}
+.nav-icon{font-size:15px;width:18px;text-align:center}
+.main{flex:1;padding:2rem 2.5rem;max-width:900px}
+.page{display:none}.page.active{display:block}
+.page-header{margin-bottom:2rem}
+.page-title{font-size:22px;font-weight:600;color:var(--text)}
+.page-sub{font-size:13px;color:var(--text2);margin-top:4px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1.25rem}
+.card-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;letter-spacing:.2px}
+.card-sub{font-size:12px;color:var(--text3);margin-bottom:1.25rem}
+.drop-zone{border:1.5px dashed var(--border2);border-radius:var(--radius);padding:2.5rem 1rem;text-align:center;cursor:pointer;transition:all .15s}
+.drop-zone:hover,.drop-zone.active{border-color:var(--accent);background:rgba(232,255,71,.03)}
+.drop-text{font-size:14px;color:var(--text2);font-weight:500}
+.drop-hint{font-size:11px;color:var(--text3);margin-top:5px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1.25rem}
+.stat{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;text-align:center}
+.stat-num{font-size:26px;font-weight:600;color:var(--accent);font-family:var(--mono)}
+.stat-label{font-size:11px;color:var(--text3);margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--radius);border:1px solid var(--border2);background:transparent;color:var(--text);font-size:13px;font-weight:500;cursor:pointer;transition:all .12s;font-family:var(--font)}
+.btn:hover{background:var(--bg3)}
+.btn-primary{background:var(--accent);color:#0f0f0f;border-color:var(--accent);font-weight:600}
+.btn-primary:hover{background:var(--accent2);border-color:var(--accent2)}
+.btn-danger{border-color:var(--red);color:var(--red)}
+.btn-danger:hover{background:rgba(255,87,87,.08)}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:1rem}
+.tag-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.tag-orig{font-size:11px;color:var(--text3);font-family:var(--mono);min-width:210px;background:var(--bg3);padding:5px 10px;border-radius:4px;border:1px solid var(--border)}
+.tag-arrow{color:var(--text3)}
+input[type=text],.tag-input,textarea,select{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13px;padding:8px 12px;font-family:var(--font);outline:none;transition:border-color .12s;width:100%}
+input[type=text]:focus,.tag-input:focus,textarea:focus,select:focus{border-color:var(--accent)}
+input[type=password]{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:13px;padding:8px 12px;font-family:var(--mono);outline:none;transition:border-color .12s;width:100%}
+input[type=password]:focus{border-color:var(--accent)}
+.tag-input{flex:1;min-width:160px;width:auto}
+select{cursor:pointer}
+.tbl-wrap{overflow-x:auto;margin-bottom:1rem}
+table{border-collapse:collapse;font-size:12px;min-width:500px;width:100%}
+th{background:var(--bg3);color:var(--text3);font-weight:600;padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text2);white-space:nowrap;max-width:160px;overflow:hidden;text-overflow:ellipsis}
+tr:hover td{background:var(--bg3);color:var(--text)}
+.badge{display:inline-block;font-size:11px;padding:3px 9px;border-radius:20px;font-weight:600;font-family:var(--mono)}
+.badge-a{background:rgba(87,232,154,.12);color:var(--green);border:1px solid rgba(87,232,154,.25)}
+.badge-b{background:rgba(87,169,255,.12);color:var(--blue);border:1px solid rgba(87,169,255,.25)}
+.badge-c{background:rgba(255,170,87,.12);color:var(--orange);border:1px solid rgba(255,170,87,.25)}
+.badge-d{background:rgba(200,200,200,.08);color:var(--text2);border:1px solid var(--border)}
+.csv-area{width:100%;height:90px;font-size:11px;font-family:var(--mono);resize:vertical;margin-top:8px}
+.sku-row{display:flex;gap:10px;align-items:flex-end;margin-bottom:1.25rem}
+.sku-row > div{flex:1}
+.sku-row label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px}
+.ai-output{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;font-size:13px;line-height:1.8;color:var(--text);min-height:200px;font-family:var(--font)}
+.ai-output h2{font-size:16px;font-weight:600;color:var(--accent);margin:1.25rem 0 6px}
+.ai-output h3{font-size:13px;font-weight:600;color:var(--text);margin:1rem 0 4px;text-transform:uppercase;letter-spacing:.5px}
+.ai-output p{margin-bottom:8px;color:var(--text2)}
+.ai-output ul{padding-left:1.25rem;margin-bottom:8px}
+.ai-output li{margin-bottom:4px;color:var(--text2)}
+.ai-output strong{color:var(--text)}
+.ai-output hr{border:none;border-top:1px solid var(--border);margin:1rem 0}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.info-box{background:rgba(232,255,71,.04);border:1px solid rgba(232,255,71,.15);border-radius:var(--radius);padding:10px 14px;font-size:12px;color:rgba(232,255,71,.7);margin-bottom:1rem}
+.divider{border:none;border-top:1px solid var(--border);margin:1.25rem 0}
+.section-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.hidden{display:none!important}
+.apikey-row{display:flex;gap:10px;align-items:center}
+.apikey-row input{flex:1}
+.key-status{font-size:11px;padding:4px 10px;border-radius:20px}
+.key-ok{background:rgba(87,232,154,.12);color:var(--green);border:1px solid rgba(87,232,154,.25)}
+.key-no{background:rgba(255,87,87,.08);color:var(--red);border:1px solid rgba(255,87,87,.2)}
+.hist-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;cursor:pointer;transition:all .12s}
+.hist-item:hover{border-color:var(--border2)}
+.hist-sku{font-family:var(--mono);font-size:13px;font-weight:500;color:var(--accent)}
+.hist-time{font-size:11px;color:var(--text3)}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <div class="logo">
+      <div class="logo-mark">DD Parts</div>
+      <div class="logo-sub">Shopify Tools</div>
+    </div>
+    <div class="nav-label">Ferramentas</div>
+    <div class="nav-item active" onclick="showPage('converter')"><span class="nav-icon">⇄</span> Conversor Sortly</div>
+    <div class="nav-item" onclick="showPage('generator')"><span class="nav-icon">✦</span> Gerador de Descrição</div>
+    <div class="nav-item" onclick="showPage('images')"><span class="nav-icon">🖼</span> Tratamento de Imagens</div>
+    <div class="nav-label" style="margin-top:auto">Config</div>
+    <div class="nav-item" onclick="showPage('settings')"><span class="nav-icon">⚙</span> Configurações</div>
+  </nav>
+
+  <main class="main">
+
+    <!-- PAGE: CONVERTER -->
+    <div class="page active" id="page-converter">
+      <div class="page-header">
+        <div class="page-title">Conversor Sortly → Shopify</div>
+        <div class="page-sub">Converte o CSV exportado do Sortly para o padrão exato de importação da Shopify com variantes por condição.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">1 — Selecione o CSV do Sortly</div>
+        <div class="card-sub">Arraste o arquivo ou clique para selecionar</div>
+        <div class="drop-zone" id="dropZone">
+          <div style="font-size:28px;margin-bottom:10px">📄</div>
+          <div class="drop-text">Clique ou arraste o CSV aqui</div>
+          <div class="drop-hint">Arquivo .csv exportado do Sortly</div>
+        </div>
+        <input type="file" id="fileInput" accept=".csv" style="display:none">
+      </div>
+      <div class="card hidden" id="mappingCard">
+        <div class="card-title">2 — Mapeamento de condições</div>
+        <div class="card-sub">Edite como cada tag do Sortly aparecerá como variante (Option1 Value) na Shopify</div>
+        <div id="tagMap"></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="runConversion()">Gerar CSV Shopify →</button>
+          <button class="btn" onclick="resetConverter()">Cancelar</button>
+        </div>
+      </div>
+      <div class="card hidden" id="resultsCard">
+        <div class="card-title">3 — Resultado</div>
+        <div class="card-sub">Revise a prévia e baixe o arquivo pronto para importar na Shopify.</div>
+        <div class="stats" id="stats"></div>
+        <hr class="divider">
+        <div class="section-label">Prévia</div>
+        <div class="tbl-wrap"><table id="previewTable"></table></div>
+        <hr class="divider">
+        <div class="info-box">Se o download não funcionar, copie o conteúdo abaixo e salve como <strong>.csv</strong></div>
+        <div class="section-label">CSV completo</div>
+        <textarea class="csv-area" id="csvArea" readonly></textarea>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="dlBtn">⬇ Baixar shopify_import.csv</button>
+          <button class="btn" onclick="copyCSV()">Copiar CSV</button>
+          <button class="btn" onclick="resetConverter()">Novo arquivo</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: GENERATOR -->
+    <div class="page" id="page-generator">
+      <div class="page-header">
+        <div class="page-title">Gerador de Descrição de Produto</div>
+        <div class="page-sub">Gera descrição completa e otimizada para SEO com base no SKU. Requer chave de API da Anthropic.</div>
+      </div>
+      <div class="card" id="noKeyWarning">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:20px">⚠️</span>
+          <div>
+            <div class="card-title" style="color:var(--orange)">Chave de API não configurada</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:2px">Vá em <strong style="color:var(--text2)">Configurações</strong> e insira sua chave da Anthropic.</div>
+          </div>
+          <button class="btn" style="margin-left:auto;white-space:nowrap" onclick="showPage('settings')">Configurações →</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Gerar descrição</div>
+        <div class="card-sub">Informe o SKU e o fabricante para gerar o conteúdo completo.</div>
+        <div class="sku-row">
+          <div>
+            <label>SKU do produto</label>
+            <input type="text" id="skuInput" placeholder="Ex: 1756-L84E" />
+          </div>
+          <div style="max-width:200px">
+            <label>Fabricante</label>
+            <select id="vendorSelect">
+              <option value="Allen-Bradley">Allen-Bradley</option>
+              <option value="Siemens">Siemens</option>
+              <option value="Schneider Electric">Schneider Electric</option>
+              <option value="Beckhoff">Beckhoff</option>
+              <option value="Omron">Omron</option>
+              <option value="ABB">ABB</option>
+              <option value="Outro">Outro</option>
+            </select>
+          </div>
+          <div style="max-width:160px">
+            <label>&nbsp;</label>
+            <button class="btn btn-primary" onclick="generateDescription()" id="genBtn" style="width:100%">✦ Gerar</button>
+          </div>
+        </div>
+      </div>
+      <div class="card hidden" id="outputCard">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+          <div class="card-title" id="outputLabel">Resultado</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn" onclick="copyOutput()">Copiar texto</button>
+            <button class="btn" onclick="copyHTMLOutput()">Copiar HTML</button>
+            <button class="btn btn-danger" onclick="clearOutput()">Limpar</button>
+          </div>
+        </div>
+        <div class="ai-output" id="aiOutput"></div>
+        <textarea id="rawOutput" style="display:none"></textarea>
+      </div>
+      <div class="card hidden" id="historyCard">
+        <div class="card-title">Histórico desta sessão</div>
+        <div class="card-sub">Clique para recarregar um resultado anterior.</div>
+        <div id="historyList"></div>
+      </div>
+    </div>
+
+    <!-- PAGE: IMAGES -->
+    <div class="page" id="page-images">
+      <div class="page-header">
+        <div class="page-title">Tratamento de Imagens</div>
+        <div class="page-sub">Sobe as imagens do Sortly para o Supabase e gera links públicos permanentes. Cole o CSV do Sortly e receba um novo CSV com os links substituídos.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">1 — Selecione o CSV do Sortly</div>
+        <div class="card-sub">O CSV deve conter as colunas Photo1 até Photo8 com os links do Sortly</div>
+        <div class="drop-zone" id="imgDropZone">
+          <div style="font-size:28px;margin-bottom:10px">🖼</div>
+          <div class="drop-text">Clique ou arraste o CSV aqui</div>
+          <div class="drop-hint">Arquivo .csv exportado do Sortly</div>
+        </div>
+        <input type="file" id="imgFileInput" accept=".csv" style="display:none">
+      </div>
+      <div class="card hidden" id="imgProgressCard">
+        <div class="card-title">2 — Processando imagens</div>
+        <div class="card-sub" id="imgProgressSub">Aguarde enquanto as imagens são enviadas para o Supabase...</div>
+        <div style="background:var(--bg3);border-radius:var(--radius);height:8px;overflow:hidden;margin-bottom:1rem">
+          <div id="imgProgressBar" style="height:100%;background:var(--accent);width:0%;transition:width 0.3s"></div>
+        </div>
+        <div style="font-size:12px;color:var(--text3)" id="imgProgressLabel">0 / 0 imagens</div>
+        <div style="margin-top:1rem;max-height:200px;overflow-y:auto;font-size:11px;font-family:var(--mono);color:var(--text3)" id="imgLog"></div>
+      </div>
+      <div class="card hidden" id="imgResultCard">
+        <div class="card-title">3 — Concluído</div>
+        <div class="stats" id="imgStats"></div>
+        <hr class="divider">
+        <div class="info-box">CSV gerado com os links públicos do Supabase substituindo os links originais do Sortly</div>
+        <div class="section-label">CSV completo</div>
+        <textarea class="csv-area" id="imgCsvArea" readonly style="height:80px"></textarea>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="imgDlBtn">⬇ Baixar CSV com links públicos</button>
+          <button class="btn" onclick="resetImages()">Novo arquivo</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE: SETTINGS -->
+    <div class="page" id="page-settings">
+      <div class="page-header">
+        <div class="page-title">Configurações</div>
+        <div class="page-sub">Gerencie sua chave de API e preferências da ferramenta.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Chave de API — Anthropic</div>
+        <div class="card-sub">Necessária para o Gerador de Descrição. A chave é salva apenas no seu navegador (localStorage).</div>
+        <div class="apikey-row">
+          <input type="password" id="apiKeyInput" placeholder="sk-ant-..." />
+          <button class="btn btn-primary" onclick="saveApiKey()">Salvar</button>
+          <button class="btn btn-danger" onclick="clearApiKey()">Remover</button>
+        </div>
+        <div style="margin-top:10px" id="keyStatusWrap"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Sobre</div>
+        <div style="font-size:13px;color:var(--text3);line-height:1.8">
+          <strong style="color:var(--text2)">DD Parts Shopify Tools</strong> — uso interno.<br>
+          Conversor: lê CSV do Sortly e gera arquivo de importação da Shopify com 46 colunas no padrão exato.<br>
+          Gerador: usa Claude (Anthropic) para criar descrições SEO completas por SKU.<br>
+          Nenhum dado é enviado para servidores além da API da Anthropic ao usar o gerador.
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+/* ── NAVIGATION ── */
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  document.getElementById('page-' + id).classList.add('active');
+  var map = { converter: 0, generator: 1, images: 2, settings: 3 };
+  var items = document.querySelectorAll('.nav-item');
+  if (items[map[id]]) items[map[id]].classList.add('active');
+  if (id === 'generator') checkApiKeyWarning();
+  if (id === 'settings') loadApiKeyDisplay();
+}
+
+/* ── SETTINGS ── */
+function saveApiKey() {
+  var k = document.getElementById('apiKeyInput').value.trim();
+  if (!k) { alert('Insira uma chave válida.'); return; }
+  localStorage.setItem('anthropic_key', k);
+  document.getElementById('apiKeyInput').value = '';
+  loadApiKeyDisplay();
+  checkApiKeyWarning();
+}
+function clearApiKey() {
+  localStorage.removeItem('anthropic_key');
+  document.getElementById('apiKeyInput').value = '';
+  loadApiKeyDisplay();
+  checkApiKeyWarning();
+}
+function loadApiKeyDisplay() {
+  var k = localStorage.getItem('anthropic_key');
+  var wrap = document.getElementById('keyStatusWrap');
+  if (k) {
+    var masked = k.substring(0, 10) + '••••••••••••••••' + k.slice(-4);
+    wrap.innerHTML = '<span class="key-status key-ok">✓ Chave salva: ' + masked + '</span>';
+  } else {
+    wrap.innerHTML = '<span class="key-status key-no">✗ Nenhuma chave salva</span>';
+  }
+}
+function checkApiKeyWarning() {
+  var k = localStorage.getItem('anthropic_key');
+  document.getElementById('noKeyWarning').classList.toggle('hidden', !!k);
+}
+
+/* ── CONVERTER CONSTANTS ── */
+var parsedRows = [], csvOutput = '', conditionMap = {}, detectedTags = [];
+
+var SHOPIFY_HEADERS = [
+  'Handle','Title','Body (HTML)','Vendor','Product Category','Type','Tags','Published',
+  'Option1 Name','Option1 Value','Option1 Linked To',
+  'Option2 Name','Option2 Value','Option2 Linked To',
+  'Option3 Name','Option3 Value','Option3 Linked To',
+  'Variant SKU','Variant Grams','Variant Inventory Tracker','Variant Inventory Qty',
+  'Variant Inventory Policy','Variant Fulfillment Service','Variant Price',
+  'Variant Compare At Price','Variant Requires Shipping','Variant Taxable',
+  'Unit Price Total Measure','Unit Price Total Measure Unit',
+  'Unit Price Base Measure','Unit Price Base Measure Unit',
+  'Variant Barcode','Image Src','Image Position','Image Alt Text',
+  'Gift Card','SEO Title','SEO Description',
+  'Color (product.metafields.shopify.color-pattern)',
+  'Controller design (product.metafields.shopify.controller-design)',
+  'Power source (product.metafields.shopify.power-source)',
+  'Variant Image','Variant Weight Unit','Variant Tax Code','Cost per item','Status'
+];
+
+var COND_KW = [
+  { key: 'new original packaging', label: 'Original Packaging' },
+  { key: 'original packaging',     label: 'Original Packaging' },
+  { key: 'new no original box',    label: 'PLCSphere Packaging' },
+  { key: 'no original box',        label: 'PLCSphere Packaging' },
+  { key: 'plcsphere packaging',    label: 'PLCSphere Packaging' },
+  { key: 'refurbished',            label: 'Refurbished' },
+  { key: 'open box',               label: 'Original Packaging' }
+];
+
+/* ── CONVERTER HELPERS ── */
+function detectCond(tags) {
+  if (!tags) return null;
+  var tl = tags.toLowerCase();
+  for (var i = 0; i < COND_KW.length; i++) {
+    if (tl.indexOf(COND_KW[i].key) >= 0) return COND_KW[i].label;
+  }
+  return null;
+}
+
+function parseCSV(text) {
+  var lines = [], cur = '', inQ = false;
+  for (var i = 0; i < text.length; i++) {
+    var ch = text[i];
+    if (ch === '"') { inQ = !inQ; cur += ch; }
+    else if (ch === '\n' && !inQ) { lines.push(cur); cur = ''; }
+    else { cur += ch; }
+  }
+  if (cur) lines.push(cur);
+  return lines.map(function(l) {
+    var cells = [], c = '', q = false;
+    for (var i = 0; i < l.length; i++) {
+      var ch = l[i];
+      if (ch === '"') { q = !q; }
+      else if (ch === ',' && !q) { cells.push(c.trim()); c = ''; }
+      else { c += ch; }
+    }
+    cells.push(c.trim());
+    return cells;
+  });
+}
+
+function slugify(s) {
+  return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+function escapeCell(val) {
+  var s = String(val == null ? '' : val);
+  if (s.indexOf(',') >= 0 || s.indexOf('"') >= 0 || s.indexOf('\n') >= 0) {
+    return '"' + s.replace(/"/g, '""') + '"';
+  }
+  return s;
+}
+
+function badgeClass(v) {
+  if (!v) return 'badge-d';
+  var l = v.toLowerCase();
+  if (l.indexOf('original box') >= 0 || l.indexOf('original packaging') >= 0) return 'badge-a';
+  if (l.indexOf('store') >= 0 || l.indexOf('no original') >= 0) return 'badge-b';
+  if (l.indexOf('refurb') >= 0) return 'badge-c';
+  return 'badge-d';
+}
+
+function setCell(row, col, val) {
+  var i = SHOPIFY_HEADERS.indexOf(col);
+  if (i >= 0) row[i] = val != null ? String(val) : '';
+}
+
+/* ── FILE UPLOAD ── */
+var fileInput = document.getElementById('fileInput');
+var dropZone = document.getElementById('dropZone');
+
+dropZone.addEventListener('click', function() { fileInput.click(); });
+
+fileInput.addEventListener('change', function(e) {
+  var f = e.target.files[0];
+  if (!f) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) { processFile(ev.target.result); };
+  reader.onerror = function() { alert('Erro ao ler o arquivo.'); };
+  reader.readAsText(f, 'UTF-8');
+});
+
+dropZone.addEventListener('dragover', function(e) {
+  e.preventDefault();
+  dropZone.classList.add('active');
+});
+dropZone.addEventListener('dragleave', function() {
+  dropZone.classList.remove('active');
+});
+dropZone.addEventListener('drop', function(e) {
+  e.preventDefault();
+  dropZone.classList.remove('active');
+  var f = e.dataTransfer.files[0];
+  if (!f) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) { processFile(ev.target.result); };
+  reader.onerror = function() { alert('Erro ao ler o arquivo.'); };
+  reader.readAsText(f, 'UTF-8');
+});
+
+/* ── PROCESS FILE ── */
+function processFile(text) {
+  var rows = parseCSV(text);
+  if (rows.length < 2) { alert('CSV inválido ou vazio.'); return; }
+  var headers = rows[0];
+
+  var nameIdx   = headers.indexOf('Entry Name');
+  var typeIdx   = headers.indexOf('Entry Type');
+  var qtyIdx    = headers.indexOf('Quantity');
+  var priceIdx  = headers.indexOf('Price');
+  var tagsIdx   = headers.indexOf('Tags');
+  var folderIdx = headers.indexOf('Primary Folder');
+  var costIdx   = headers.indexOf('Unit Cost Price');
+
+  // Capture all Photo columns (Photo1..Photo8)
+  var photoIdxs = [];
+  for (var p = 1; p <= 8; p++) {
+    var pi = headers.indexOf('Photo' + p);
+    if (pi >= 0) photoIdxs.push(pi);
+  }
+
+  parsedRows = [];
+  var tagSet = {};
+
+  for (var i = 1; i < rows.length; i++) {
+    var r = rows[i];
+    if (!r || r.length < 3) continue;
+    var entryType = (typeIdx >= 0 ? r[typeIdx] : '').trim();
+    if (entryType !== 'Item') continue;
+    var name = (nameIdx >= 0 ? r[nameIdx] : '').trim();
+    if (!name) continue;
+    var tags = (tagsIdx >= 0 ? r[tagsIdx] : '').replace(/^"|"$/g, '').trim();
+    var condKey = detectCond(tags) || 'PLCSphere Packaging';
+    tagSet[condKey] = true;
+
+    // Collect non-empty photo URLs
+    var photos = [];
+    for (var pi = 0; pi < photoIdxs.length; pi++) {
+      var url = (r[photoIdxs[pi]] || '').replace(/^"|"$/g, '').trim();
+      if (url) photos.push(url);
+    }
+
+    parsedRows.push({
+      name:    name,
+      qty:     qtyIdx    >= 0 ? (parseFloat(r[qtyIdx])    || 0) : 0,
+      price:   priceIdx  >= 0 ? (parseFloat(r[priceIdx])  || 0) : 0,
+      cost:    costIdx   >= 0 ? (parseFloat(r[costIdx])   || 0) : 0,
+      tags:    tags,
+      folder:  folderIdx >= 0 ? r[folderIdx] : 'Allen-Bradley',
+      condKey: condKey,
+      photos:  photos
+    });
+  }
+
+  detectedTags = Object.keys(tagSet).sort();
+  conditionMap = {};
+  for (var j = 0; j < detectedTags.length; j++) {
+    var t = detectedTags[j];
+    // condKey is already the final label — map directly to itself
+    conditionMap[t] = t;
+  }
+
+  buildMappingUI();
+}
+
+/* ── MAPPING UI ── */
+function buildMappingUI() {
+  document.getElementById('mappingCard').classList.remove('hidden');
+  document.getElementById('resultsCard').classList.add('hidden');
+  var tm = document.getElementById('tagMap');
+  tm.innerHTML = '';
+  for (var i = 0; i < detectedTags.length; i++) {
+    var t = detectedTags[i];
+    var row = document.createElement('div');
+    row.className = 'tag-row';
+    row.innerHTML =
+      '<span class="tag-orig">' + t + '</span>' +
+      '<span class="tag-arrow">→</span>' +
+      '<input class="tag-input" data-orig="' + t + '" value="' + conditionMap[t] + '" placeholder="Nome da variante">';
+    tm.appendChild(row);
+  }
+  document.getElementById('mappingCard').scrollIntoView({ behavior: 'smooth' });
+}
+
+/* ── RUN CONVERSION ── */
+function runConversion() {
+  var inputs = document.querySelectorAll('.tag-input');
+  for (var x = 0; x < inputs.length; x++) {
+    var orig = inputs[x].getAttribute('data-orig');
+    conditionMap[orig] = inputs[x].value.trim() || orig;
+  }
+
+  var lines = [SHOPIFY_HEADERS.map(escapeCell).join(',')];
+  var previewRows = [SHOPIFY_HEADERS];
+  var totalP = 0, totalV = 0, totalU = 0;
+
+  for (var i = 0; i < parsedRows.length; i++) {
+    var item = parsedRows[i];
+    var vendor     = (item.folder || 'Allen-Bradley').trim();
+    var sku        = item.name;
+    var handle     = slugify(vendor + '-' + sku);
+    var title      = vendor + ' ' + sku;
+    var condValue  = conditionMap[item.condKey] || item.condKey;
+    var row        = new Array(SHOPIFY_HEADERS.length).fill('');
+
+    setCell(row, 'Handle', handle);
+    setCell(row, 'Title', title);
+    setCell(row, 'Body (HTML)', '');
+    setCell(row, 'Vendor', vendor);
+    setCell(row, 'Product Category', 'Business & Industrial');
+    setCell(row, 'Type', '');
+    setCell(row, 'Tags', vendor);
+    setCell(row, 'Published', 'TRUE');
+    setCell(row, 'Option1 Name', 'Condition');
+    setCell(row, 'Option1 Value', condValue);
+    setCell(row, 'Option1 Linked To', '');
+    setCell(row, 'Option2 Name', '');
+    setCell(row, 'Option2 Value', '');
+    setCell(row, 'Option2 Linked To', '');
+    setCell(row, 'Option3 Name', '');
+    setCell(row, 'Option3 Value', '');
+    setCell(row, 'Option3 Linked To', '');
+    setCell(row, 'Variant SKU', sku);
+    setCell(row, 'Variant Grams', '0');
+    setCell(row, 'Variant Inventory Tracker', 'shopify');
+    setCell(row, 'Variant Inventory Qty', Math.round(item.qty));
+    setCell(row, 'Variant Inventory Policy', 'continue');
+    setCell(row, 'Variant Fulfillment Service', 'manual');
+    setCell(row, 'Variant Price', item.price.toFixed(2));
+    setCell(row, 'Variant Compare At Price', '');
+    setCell(row, 'Variant Requires Shipping', 'TRUE');
+    setCell(row, 'Variant Taxable', 'TRUE');
+    setCell(row, 'Unit Price Total Measure', '');
+    setCell(row, 'Unit Price Total Measure Unit', '');
+    setCell(row, 'Unit Price Base Measure', '');
+    setCell(row, 'Unit Price Base Measure Unit', '');
+    setCell(row, 'Variant Barcode', '');
+    // First image goes on the main product row
+    var firstPhoto = (item.photos && item.photos.length > 0) ? item.photos[0] : '';
+    setCell(row, 'Image Src', firstPhoto);
+    setCell(row, 'Image Position', firstPhoto ? '1' : '');
+    setCell(row, 'Image Alt Text', firstPhoto ? (vendor + ' ' + sku) : '');
+    setCell(row, 'Gift Card', 'FALSE');
+    setCell(row, 'SEO Title', '');
+    setCell(row, 'SEO Description', '');
+    setCell(row, 'Color (product.metafields.shopify.color-pattern)', '');
+    setCell(row, 'Controller design (product.metafields.shopify.controller-design)', '');
+    setCell(row, 'Power source (product.metafields.shopify.power-source)', '');
+    setCell(row, 'Variant Image', firstPhoto);
+    setCell(row, 'Variant Weight Unit', 'kg');
+    setCell(row, 'Variant Tax Code', '');
+    setCell(row, 'Cost per item', item.cost > 0 ? item.cost.toFixed(2) : '');
+    setCell(row, 'Status', 'active');
+
+    lines.push(row.map(escapeCell).join(','));
+    previewRows.push(row.slice());
+    totalP++; totalV++; totalU += item.qty;
+
+    // Extra rows for additional images (position 2, 3, ...)
+    if (item.photos && item.photos.length > 1) {
+      for (var imgIdx = 1; imgIdx < item.photos.length; imgIdx++) {
+        var imgRow = new Array(SHOPIFY_HEADERS.length).fill('');
+        setCell(imgRow, 'Handle', handle);
+        setCell(imgRow, 'Image Src', item.photos[imgIdx]);
+        setCell(imgRow, 'Image Position', String(imgIdx + 1));
+        setCell(imgRow, 'Image Alt Text', vendor + ' ' + sku + ' ' + (imgIdx + 1));
+        lines.push(imgRow.map(escapeCell).join(','));
+        previewRows.push(imgRow.slice());
+      }
+    }
+  } // end main for loop
+
+  csvOutput = lines.join('\n');
+  document.getElementById('csvArea').value = csvOutput;
+  document.getElementById('stats').innerHTML =
+    '<div class="stat"><div class="stat-num">' + totalP + '</div><div class="stat-label">Produtos</div></div>' +
+    '<div class="stat"><div class="stat-num">' + totalV + '</div><div class="stat-label">Variantes</div></div>' +
+    '<div class="stat"><div class="stat-num">' + Math.round(totalU) + '</div><div class="stat-label">Unidades</div></div>';
+
+  buildPreview(previewRows.slice(0, 15));
+  document.getElementById('resultsCard').classList.remove('hidden');
+  document.getElementById('resultsCard').scrollIntoView({ behavior: 'smooth' });
+}
+
+/* ── PREVIEW TABLE ── */
+function buildPreview(rows) {
+  var cols = ['Handle', 'Title', 'Option1 Value', 'Variant SKU', 'Variant Price', 'Variant Inventory Qty', 'Image Src', 'Image Position'];
+  var cidx = cols.map(function(c) { return SHOPIFY_HEADERS.indexOf(c); });
+  var html = '<thead><tr>' + cols.map(function(c) { return '<th>' + c + '</th>'; }).join('') + '</tr></thead><tbody>';
+  for (var i = 1; i < rows.length; i++) {
+    var r = rows[i];
+    var isImageRow = r[SHOPIFY_HEADERS.indexOf('Title')] === '' && r[SHOPIFY_HEADERS.indexOf('Image Src')] !== '';
+    html += '<tr' + (isImageRow ? ' style="opacity:0.55"' : '') + '>' + cidx.map(function(ci, j) {
+      var val = (ci >= 0 && r[ci]) ? r[ci] : '';
+      if (cols[j] === 'Option1 Value') {
+        return val ? '<td><span class="badge ' + badgeClass(val) + '">' + val + '</span></td>' : '<td></td>';
+      }
+      if (cols[j] === 'Image Src' && val) {
+        return '<td style="color:var(--blue);font-size:10px;max-width:120px;overflow:hidden;text-overflow:ellipsis">' + val + '</td>';
+      }
+      if (cols[j] === 'Image Position' && val) {
+        return '<td><span style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:2px 7px;font-family:var(--mono);font-size:11px">' + val + '</span></td>';
+      }
+      return '<td>' + val + '</td>';
+    }).join('') + '</tr>';
+  }
+  html += '</tbody>';
+  document.getElementById('previewTable').innerHTML = html;
+}
+
+/* ── DOWNLOAD ── */
+document.getElementById('dlBtn').addEventListener('click', function() {
+  if (!csvOutput) { alert('Gere o CSV primeiro.'); return; }
+  try {
+    var blob = new Blob([csvOutput], { type: 'text/csv;charset=utf-8;' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.setAttribute('download', 'shopify_import.csv');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function() { URL.revokeObjectURL(url); }, 1500);
+  } catch(e) {
+    alert('Use o botão "Copiar CSV" e salve como .csv');
+  }
+});
+
+function copyCSV() {
+  var area = document.getElementById('csvArea');
+  area.select();
+  try {
+    document.execCommand('copy');
+    alert('CSV copiado!');
+  } catch(e) {
+    alert('Selecione o texto manualmente e copie.');
+  }
+}
+
+function resetConverter() {
+  parsedRows = []; csvOutput = ''; conditionMap = {}; detectedTags = [];
+  document.getElementById('mappingCard').classList.add('hidden');
+  document.getElementById('resultsCard').classList.add('hidden');
+  document.getElementById('fileInput').value = '';
+  document.getElementById('csvArea').value = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ── AI GENERATOR ── */
+var generatorHistory = [];
+
+function generateDescription() {
+  var key = localStorage.getItem('anthropic_key');
+  if (!key) { showPage('settings'); alert('Configure sua chave de API primeiro.'); return; }
+
+  var sku = document.getElementById('skuInput').value.trim();
+  var vendor = document.getElementById('vendorSelect').value;
+  if (!sku) { alert('Informe o SKU do produto.'); return; }
+
+  var btn = document.getElementById('genBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Gerando...';
+
+  document.getElementById('outputCard').classList.remove('hidden');
+  var out = document.getElementById('aiOutput');
+  out.innerHTML = '<span class="spinner"></span> Consultando Claude...';
+  document.getElementById('outputLabel').textContent = vendor + ' ' + sku;
+
+  var prompt = 'Você é um(a) criador(a) de conteúdo de produtos industriais especializado(a) em componentes de automação (Allen-Bradley, Siemens, etc.).\n' +
+    'Sua tarefa é gerar uma descrição de produto completa, estruturada e otimizada para SEO com base no SKU fornecido.\n\n' +
+    '⚠️ REGRAS RIGOROSAS:\n' +
+    '- NUNCA invente especificações numéricas ou técnicas concretas que não possam ser deduzidas do SKU\n' +
+    '- Use APENAS dados técnicos verificados ou logicamente consistentes com o SKU\n' +
+    '- MANTENHA A ESTRUTURA E A ORDEM DAS SEÇÕES EXATAS\n' +
+    '- Mantenha um tom profissional B2B\n' +
+    '- Adapte o conteúdo com base no SKU específico\n' +
+    '- Evite descrições genéricas ou vagas\n\n' +
+    'ENTRADA:\nSKU: ' + sku + '\nFabricante: ' + vendor + '\n\n' +
+    'FORMATO DE SAÍDA (SIGA EXATAMENTE):\n\n' +
+    '## ' + vendor + ' ' + sku + ' — Visão Geral\n\n' +
+    '[Parágrafo de visão geral: tipo de produto, compatibilidade, função principal, contexto industrial]\n\n' +
+    '### Características principais\n- [5 a 7 tópicos: função, confiabilidade, compatibilidade, design]\n\n' +
+    '### Especificações técnicas\n- Modelo: ' + sku + '\n- Fabricante: ' + vendor + '\n- [demais campos relevantes — não invente valores numéricos]\n\n' +
+    '### Aplicações\n- [4 a 6 casos de uso industrial reais e específicos]\n\n' +
+    '### Por que escolher este modelo?\n- [3 a 5 tópicos: confiabilidade, integração, desempenho, ciclo de vida]\n\n' +
+    '### Encomende agora\n[Parágrafo comercial: confiabilidade, caso de uso, público-alvo]\n\n' +
+    '---\n**Meta Descrição (≤ 160 caracteres):**\n[SEO: SKU + tipo + benefício + "Envio internacional disponível"]\n\n' +
+    '**Texto Alternativo da Imagem (≤ 125 caracteres):**\n[descrição clara para SEO e acessibilidade]\n\n' +
+    '**URL SEO:**\n' + vendor.toLowerCase().replace(/\s+/g, '-') + '-' + sku.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-[tipo-com-hifens]';
+
+  fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': key,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 2000,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  })
+  .then(function(response) { return response.json(); })
+  .then(function(data) {
+    if (data.error) {
+      out.innerHTML = '<span style="color:var(--red)">Erro da API: ' + (data.error.message || JSON.stringify(data.error)) + '</span>';
+      return;
+    }
+    var rawText = data.content.map(function(b) { return b.text || ''; }).join('');
+    document.getElementById('rawOutput').value = rawText;
+    out.innerHTML = renderMarkdown(rawText);
+    generatorHistory.unshift({ sku: sku, vendor: vendor, raw: rawText, rendered: out.innerHTML, time: new Date().toLocaleTimeString('pt-BR') });
+    updateHistory();
+  })
+  .catch(function(e) {
+    out.innerHTML = '<span style="color:var(--red)">Erro de conexão: ' + e.message + '</span>';
+  })
+  .finally(function() {
+    btn.disabled = false;
+    btn.innerHTML = '✦ Gerar';
+  });
+}
+
+function renderMarkdown(text) {
+  var escaped = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  var lines = escaped.split('\n');
+  var html = '';
+  var inUl = false;
+
+  for (var i = 0; i < lines.length; i++) {
+    var line = lines[i];
+    if (/^## /.test(line)) {
+      if (inUl) { html += '</ul>'; inUl = false; }
+      html += '<h2>' + line.replace(/^## /, '') + '</h2>';
+    } else if (/^### /.test(line)) {
+      if (inUl) { html += '</ul>'; inUl = false; }
+      html += '<h3>' + line.replace(/^### /, '') + '</h3>';
+    } else if (/^- /.test(line)) {
+      if (!inUl) { html += '<ul>'; inUl = true; }
+      html += '<li>' + line.replace(/^- /, '').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>') + '</li>';
+    } else if (/^---/.test(line)) {
+      if (inUl) { html += '</ul>'; inUl = false; }
+      html += '<hr>';
+    } else if (line.trim() === '') {
+      if (inUl) { html += '</ul>'; inUl = false; }
+    } else {
+      if (inUl) { html += '</ul>'; inUl = false; }
+      var processed = line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      html += '<p>' + processed + '</p>';
+    }
+  }
+  if (inUl) html += '</ul>';
+  return html;
+}
+
+function updateHistory() {
+  if (generatorHistory.length === 0) return;
+  document.getElementById('historyCard').classList.remove('hidden');
+  var hl = document.getElementById('historyList');
+  hl.innerHTML = '';
+  generatorHistory.slice(0, 8).forEach(function(item) {
+    var div = document.createElement('div');
+    div.className = 'hist-item';
+    div.innerHTML = '<div><div class="hist-sku">' + item.vendor + ' ' + item.sku + '</div></div><div class="hist-time">' + item.time + '</div>';
+    div.addEventListener('click', (function(it) {
+      return function() {
+        document.getElementById('aiOutput').innerHTML = it.rendered;
+        document.getElementById('rawOutput').value = it.raw;
+        document.getElementById('outputCard').classList.remove('hidden');
+        document.getElementById('outputLabel').textContent = it.vendor + ' ' + it.sku;
+        document.getElementById('outputCard').scrollIntoView({ behavior: 'smooth' });
+      };
+    })(item));
+    hl.appendChild(div);
+  });
+}
+
+function copyOutput() {
+  var raw = document.getElementById('rawOutput').value;
+  if (!raw) { alert('Nada para copiar.'); return; }
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(raw).then(function() { alert('Texto copiado!'); }).catch(fallbackCopy.bind(null, raw));
+  } else { fallbackCopy(raw); }
+}
+
+function copyHTMLOutput() {
+  var html = document.getElementById('aiOutput').innerHTML;
+  if (!html) { alert('Nada para copiar.'); return; }
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(html).then(function() { alert('HTML copiado!'); }).catch(fallbackCopy.bind(null, html));
+  } else { fallbackCopy(html); }
+}
+
+function fallbackCopy(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); alert('Copiado!'); } catch(e) { alert('Não foi possível copiar automaticamente.'); }
+  document.body.removeChild(ta);
+}
+
+function clearOutput() {
+  document.getElementById('outputCard').classList.add('hidden');
+  document.getElementById('aiOutput').innerHTML = '';
+  document.getElementById('rawOutput').value = '';
+}
+
+/* ── IMAGE PROCESSOR ── */
+var SUPA_URL = 'https://xnwsjvqofruvihyobpcw.supabase.co';
+var SUPA_KEY = 'sb_publishable_Rc7ceZjPJGvGTEzlnncW9Q_hiDh_P7v';
+var imgParsedRows = [], imgHeaders = [], imgPhotoIdxs = [], imgCsvOutput = '';
+
+var imgFileInput2 = document.getElementById('imgFileInput');
+var imgDropZone2 = document.getElementById('imgDropZone');
+
+imgDropZone2.addEventListener('click', function() { imgFileInput2.click(); });
+imgFileInput2.addEventListener('change', function(e) {
+  var f = e.target.files[0]; if (!f) return;
+  var r = new FileReader();
+  r.onload = function(ev) { processImgFile(ev.target.result); };
+  r.readAsText(f, 'UTF-8');
+});
+imgDropZone2.addEventListener('dragover', function(e) { e.preventDefault(); imgDropZone2.classList.add('active'); });
+imgDropZone2.addEventListener('dragleave', function() { imgDropZone2.classList.remove('active'); });
+imgDropZone2.addEventListener('drop', function(e) {
+  e.preventDefault(); imgDropZone2.classList.remove('active');
+  var f = e.dataTransfer.files[0]; if (!f) return;
+  var r = new FileReader();
+  r.onload = function(ev) { processImgFile(ev.target.result); };
+  r.readAsText(f, 'UTF-8');
+});
+
+function processImgFile(text) {
+  var rows = parseCSV(text);
+  if (rows.length < 2) { alert('CSV inválido.'); return; }
+  imgHeaders = rows[0];
+  imgPhotoIdxs = [];
+  // Shopify format: single Image Src column
+  var imgSrcIdx = imgHeaders.indexOf('Image Src');
+  if (imgSrcIdx >= 0) {
+    imgPhotoIdxs.push(imgSrcIdx);
+  } else {
+    // Fallback: Sortly format Photo1..Photo8
+    for (var p = 1; p <= 8; p++) {
+      var pi = imgHeaders.indexOf('Photo' + p);
+      if (pi >= 0) imgPhotoIdxs.push(pi);
+    }
+  }
+  if (imgPhotoIdxs.length === 0) {
+    alert('Nenhuma coluna de imagem encontrada (Image Src ou Photo1..Photo8).');
+    return;
+  }
+  imgParsedRows = rows;
+  document.getElementById('imgProgressCard').classList.remove('hidden');
+  document.getElementById('imgResultCard').classList.add('hidden');
+  startImageUpload();
+}
+
+async function startImageUpload() {
+  var allUrls = [];
+  for (var i = 1; i < imgParsedRows.length; i++) {
+    var r = imgParsedRows[i];
+    if (!r || r.length < 3) continue;
+    for (var j = 0; j < imgPhotoIdxs.length; j++) {
+      var url = (r[imgPhotoIdxs[j]] || '').replace(/^"|"$/g, '').trim();
+      if (url && url.startsWith('http')) allUrls.push({ row: i, col: imgPhotoIdxs[j], url: url });
+    }
+  }
+
+  var total = allUrls.length;
+  var done = 0;
+  var failed = 0;
+  var log = document.getElementById('imgLog');
+
+  document.getElementById('imgProgressLabel').textContent = '0 / ' + total + ' imagens';
+
+  for (var k = 0; k < allUrls.length; k++) {
+    var item = allUrls[k];
+    try {
+      var newUrl = await uploadImageToSupabase(item.url);
+      imgParsedRows[item.row][item.col] = newUrl;
+      log.innerHTML += '<div style="color:var(--green)">✓ ' + item.url.substring(0, 60) + '...</div>';
+    } catch(e) {
+      failed++;
+      log.innerHTML += '<div style="color:var(--red)">✗ Erro: ' + item.url.substring(0, 50) + '</div>';
+    }
+    done++;
+    var pct = Math.round((done / total) * 100);
+    document.getElementById('imgProgressBar').style.width = pct + '%';
+    document.getElementById('imgProgressLabel').textContent = done + ' / ' + total + ' imagens';
+    document.getElementById('imgProgressSub').textContent = 'Processando... ' + pct + '%';
+    log.scrollTop = log.scrollHeight;
+  }
+
+  buildImgCsv(total, done - failed, failed);
+}
+
+async function uploadImageToSupabase(srcUrl) {
+  var resp = await fetch('https://corsproxy.io/?' + encodeURIComponent(srcUrl));
+  if (!resp.ok) throw new Error('fetch failed');
+  var blob = await resp.blob();
+  var ext = blob.type.includes('png') ? 'png' : blob.type.includes('webp') ? 'webp' : 'jpg';
+  var filename = 'sortly/' + Date.now() + '-' + Math.random().toString(36).substr(2, 8) + '.' + ext;
+  var uploadResp = await fetch(SUPA_URL + '/storage/v1/object/assets/' + filename, {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + SUPA_KEY,
+      'Content-Type': blob.type,
+      'x-upsert': 'true'
+    },
+    body: blob
+  });
+  if (!uploadResp.ok) {
+    var err = await uploadResp.text();
+    throw new Error('upload failed: ' + err);
+  }
+  return SUPA_URL + '/storage/v1/object/public/assets/' + filename;
+}
+
+function buildImgCsv(total, success, failed) {
+  var lines = [imgHeaders.map(escapeCell).join(',')];
+  for (var i = 1; i < imgParsedRows.length; i++) {
+    if (imgParsedRows[i] && imgParsedRows[i].length > 1) {
+      lines.push(imgParsedRows[i].map(escapeCell).join(','));
+    }
+  }
+  imgCsvOutput = lines.join('\n');
+  document.getElementById('imgCsvArea').value = imgCsvOutput;
+  document.getElementById('imgStats').innerHTML =
+    '<div class="stat"><div class="stat-num">' + total + '</div><div class="stat-label">Total</div></div>' +
+    '<div class="stat"><div class="stat-num" style="color:var(--green)">' + success + '</div><div class="stat-label">Sucesso</div></div>' +
+    '<div class="stat"><div class="stat-num" style="color:var(--red)">' + failed + '</div><div class="stat-label">Erros</div></div>';
+  document.getElementById('imgProgressSub').textContent = 'Concluído!';
+  document.getElementById('imgResultCard').classList.remove('hidden');
+  document.getElementById('imgResultCard').scrollIntoView({ behavior: 'smooth' });
+}
+
+document.getElementById('imgDlBtn').addEventListener('click', function() {
+  if (!imgCsvOutput) { alert('Processe um arquivo primeiro.'); return; }
+  try {
+    var blob = new Blob([imgCsvOutput], { type: 'text/csv;charset=utf-8;' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.setAttribute('download', 'sortly_public_images.csv');
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function() { URL.revokeObjectURL(url); }, 1500);
+  } catch(e) { alert('Copie o CSV manualmente.'); }
+});
+
+function resetImages() {
+  imgParsedRows = []; imgHeaders = []; imgPhotoIdxs = []; imgCsvOutput = '';
+  document.getElementById('imgProgressCard').classList.add('hidden');
+  document.getElementById('imgResultCard').classList.add('hidden');
+  document.getElementById('imgFileInput').value = '';
+  document.getElementById('imgLog').innerHTML = '';
+  document.getElementById('imgProgressBar').style.width = '0%';
+}
+
+/* ── INIT ── */
+loadApiKeyDisplay();
+checkApiKeyWarning();
+</script>
+</body>
+</html>
