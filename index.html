@@ -945,6 +945,7 @@ async function startImageUpload() {
       log.innerHTML += '<div style="color:var(--red)">✗ Erro: ' + item.url.substring(0, 50) + '</div>';
     }
     done++;
+    await new Promise(function(r){ setTimeout(r, 200); });
     var pct = Math.round((done / total) * 100);
     document.getElementById('imgProgressBar').style.width = pct + '%';
     document.getElementById('imgProgressLabel').textContent = done + ' / ' + total + ' imagens';
@@ -956,8 +957,9 @@ async function startImageUpload() {
 }
 
 async function uploadImageToSupabase(srcUrl) {
-  var resp = await fetch('https://corsproxy.io/?' + encodeURIComponent(srcUrl));
-  if (!resp.ok) throw new Error('fetch failed');
+  var proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(srcUrl);
+  var resp = await fetch(proxyUrl);
+  if (!resp.ok) throw new Error('fetch failed: ' + resp.status);
   var blob = await resp.blob();
   var ext = blob.type.includes('png') ? 'png' : blob.type.includes('webp') ? 'webp' : 'jpg';
   var filename = 'sortly/' + Date.now() + '-' + Math.random().toString(36).substr(2, 8) + '.' + ext;
