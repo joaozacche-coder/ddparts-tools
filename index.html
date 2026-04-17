@@ -959,10 +959,7 @@ async function startImageUpload() {
 async function uploadImageToSupabase(srcUrl) {
   var resp = await fetch('https://xnwsjvqofruvihyobpcw.supabase.co/functions/v1/smart-action', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer sb_publishable_Rc7ceZjPJGvGTEzlnncW9Q_hiDh_P7v'
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ url: srcUrl })
   });
   if (!resp.ok) throw new Error('function failed: ' + resp.status);
