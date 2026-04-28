@@ -916,8 +916,8 @@ function clearOutput() {
 }
 
 /* ── IMAGE PROCESSOR ── */
-var SUPA_URL = 'https://xnwsjvqofruvihyobpcw.supabase.co';
-var SUPA_KEY = 'sb_publishable_Rc7ceZjPJGvGTEzlnncW9Q_hiDh_P7v';
+var SUPA_URL = 'https://mqxrimgxmcrtcaubcazd.supabase.co';
+var SUPA_KEY = 'sb_publishable_mWqoFlTwk6BFXMZ4YbO2Jg_RQa9YZND';
 var imgParsedRows = [], imgHeaders = [], imgPhotoIdxs = [], imgCsvOutput = '';
 
 var imgFileInput2 = document.getElementById('imgFileInput');
@@ -1007,7 +1007,7 @@ async function startImageUpload() {
 }
 
 async function uploadImageToSupabase(srcUrl) {
-  var resp = await fetch('https://xnwsjvqofruvihyobpcw.supabase.co/functions/v1/smart-action', {
+  var resp = await fetch('https://mqxrimgxmcrtcaubcazd.supabase.co/functions/v1/smart-action', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ url: srcUrl })
@@ -1192,7 +1192,7 @@ async function fetchAndGenerateBody(sku, title, key) {
     body: JSON.stringify({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1500,
-      tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+      tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 3 }],
       messages: [{ role: 'user', content: prompt }]
     })
   });
